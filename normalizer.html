@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Text Normalizer</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0052a3;
+        }
+    </style>
+</head>
+<body>
+    <h1>ASCII Text Normalizer</h1>
+    <textarea id="textInput" placeholder="Enter your text here..."></textarea>
+    <button onclick="normalizeText()">Normalize Text</button>
+
+    <script>
+        function normalizeText() {
+            const textarea = document.getElementById('textInput');
+            let text = textarea.value;
+            
+            // Convert to ASCII and back (this will handle chars 0-255)
+            const normalized = text.split('').map(char => {
+                const code = char.charCodeAt(0);
+                
+                if (code <= 255) {
+                    // Check if it's a whitespace character other than newline
+                    if ((code === 9 || code === 13 || 
+                         code === 32 || code === 160 || code === 255)) {
+                        return ' ';
+                    }
+                    return char;
+                }
+                return ' ';
+            }).join('');
+            
+            // Remove dashes
+            let finalText = normalized.replace(/-/g, '');
+            
+            // Replace backticks with apostrophes
+            finalText = finalText.replace(/`/g, "'");
+            
+            // Replace isolated newlines (not preceded or followed by another newline)
+            finalText = finalText.replace(/([^\n])\n([^\n])/g, '$1 $2');
+            
+            // Reduce 3+ newlines to two
+            finalText = finalText.replace(/\n{3,}/g, '\n\n');
+            
+            // Reduce 2+ spaces to one
+            finalText = finalText.replace(/[^\S\n]+/g, ' ');
+            
+            textarea.value = finalText;
+        }
+    </script>
+</body>
+</html>
